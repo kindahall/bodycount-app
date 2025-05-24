@@ -29,6 +29,7 @@ jest.mock('../supabaseClient', () => {
 });
 
 // Pour accéder aux mocks des méthodes chaînées dans les tests
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getMockChain = () => (supabase.from('anyTable') as any);
 
 
@@ -53,9 +54,10 @@ describe('Partner Functions', () => {
     // Réinitialiser tous les mocks avant chaque test
     (supabase.from as jest.Mock).mockClear();
     const mockChain = getMockChain();
-    Object.values(mockChain).forEach((mockFn: any) => { // Rétablir 'any' pour satisfaire TypeScript ici, l'erreur ESLint originale était pour ce 'any'
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Object.values(mockChain).forEach((mockFn: any) => {
       if (jest.isMockFunction(mockFn)) {
-        (mockFn as jest.Mock).mockClear(); // Caster ici pour utiliser les méthodes de mock
+        (mockFn as jest.Mock).mockClear();
         // S'assurer que les méthodes chaînables retournent 'this' (l'objet mockChain)
         if (['select', 'insert', 'update', 'delete', 'eq', 'order'].includes((mockFn as jest.Mock).getMockName() === 'jest.fn()' ? (mockFn as jest.Mock).getMockImplementation()?.name || '' : (mockFn as jest.Mock).name)) {
            (mockFn as jest.Mock).mockReturnThis();
